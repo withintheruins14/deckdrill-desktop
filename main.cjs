@@ -1,8 +1,10 @@
 // deckdrill desktop: a secure window onto https://www.deckdrill.app, plus the few things a
-// browser tab can't do — talk to AnkiConnect without CORS setup, and a clear offline screen.
+// browser tab can't do — talk to AnkiConnect without CORS setup, save drills spoken by the
+// computer's own voices, and a clear offline screen.
 // Studio logic stays on the site, so the app never needs updating for site changes.
 const { app, BrowserWindow, ipcMain, session, shell } = require("electron");
 const path = require("node:path");
+const systemTts = require("./system-tts.cjs");
 
 const SITE = "https://www.deckdrill.app";
 const HOSTS = new Set(["www.deckdrill.app", "deckdrill.app"]);
@@ -80,6 +82,22 @@ ipcMain.handle("anki-connect", async (event, body) => {
   } catch {
     throw new Error("Anki isn't running, or the AnkiConnect add-on isn't installed");
   }
+});
+
+// The page only ever names a voice; the main process checks it against the installed voices.
+ipcMain.handle("system-voices", async (event, voices) => {
+  if (!isSite(event.senderFrame?.url ?? "")) throw new Error("Not allowed");
+  if (!Array.isArray(voices) || voices.length > 1000) throw new Error("Bad request");
+  return systemTts.resolvable(voices.filter((v) => v && typeof v.name === "string" && typeof v.lang === "string"));
+});
+
+ipcMain.handle("system-tts", async (event, request) => {
+  if (!isSite(event.senderFrame?.url ?? "")) throw new Error("Not allowed");
+  const { name, lang, text, slow } = request ?? {};
+  if (typeof name !== "string" || typeof lang !== "string" || typeof text !== "string" || !text.trim() || text.length > systemTts.MAX_TEXT) {
+    throw new Error("Bad request");
+  }
+  return systemTts.synthesize({ name, lang, text, slow: !!slow });
 });
 
 if (!app.requestSingleInstanceLock()) {
