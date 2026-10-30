@@ -2,7 +2,7 @@
 // browser tab can't do — talk to AnkiConnect without CORS setup, save drills spoken by the
 // computer's own voices, and a clear offline screen.
 // Studio logic stays on the site, so the app never needs updating for site changes.
-const { app, BrowserWindow, ipcMain, session, shell } = require("electron");
+const { app, BrowserWindow, Menu, ipcMain, session, shell } = require("electron");
 const path = require("node:path");
 const systemTts = require("./system-tts.cjs");
 
@@ -64,6 +64,41 @@ function createWindow() {
   win.loadURL(SITE);
 }
 
+// Help menu and About panel: where the terms, the voice licenses and the open-source notices live.
+// Electron's and Chromium's license texts ship in Resources/licenses (see "extraResources").
+function setUpMenu() {
+  const licenses = (file) => () => shell.openPath(path.join(process.resourcesPath, "licenses", file));
+  const show = (url) => () => (win ? win.loadURL(url) : shell.openExternal(url));
+  app.setAboutPanelOptions({
+    applicationName: "deckdrill",
+    applicationVersion: app.getVersion(),
+    copyright: "© 2026 Phillip Jacowski",
+    credits: "Built with Electron and Chromium (see Help → Open-source licenses). Your computer's own voices are licensed by Apple and Microsoft for personal, non-commercial use.",
+    website: SITE,
+  });
+  const template = [
+    ...(process.platform === "darwin" ? [{ role: "appMenu" }] : []),
+    { role: "fileMenu" },
+    { role: "editMenu" },
+    { role: "viewMenu" },
+    { role: "windowMenu" },
+    {
+      role: "help",
+      submenu: [
+        { label: "deckdrill Website", click: show(SITE) },
+        { label: "Terms, Privacy and Licenses", click: show(`${SITE}/legal`) },
+        { label: "Voices and Audio Rights", click: show(`${SITE}/legal#voices`) },
+        { type: "separator" },
+        { label: "Open-source Licenses (Website)", click: show(`${SITE}/third-party-notices.txt`) },
+        { label: "Electron License", click: licenses("LICENSE.electron.txt") },
+        { label: "Chromium Licenses", click: licenses("LICENSES.chromium.html") },
+        ...(process.platform === "darwin" ? [] : [{ type: "separator" }, { role: "about" }]),
+      ],
+    },
+  ];
+  Menu.setApplicationMenu(Menu.buildFromTemplate(template));
+}
+
 // The microphone is only for recording a voice to clone, and only for deckdrill itself.
 function limitPermissions() {
   const allowed = new Set(["media", "clipboard-sanitized-write", "fullscreen"]);
@@ -110,6 +145,7 @@ if (!app.requestSingleInstanceLock()) {
   });
   app.whenReady().then(() => {
     limitPermissions();
+    setUpMenu();
     createWindow();
     app.on("activate", () => {
       if (BrowserWindow.getAllWindows().length === 0) createWindow();

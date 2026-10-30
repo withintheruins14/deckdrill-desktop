@@ -1,7 +1,7 @@
 {
   "name": "deckdrill-desktop",
   "productName": "deckdrill",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "deckdrill for Mac and Windows: Anki decks and Pimsleur- and Glossika-style audio drills, in your own voice.",
   "author": "Phillip Jacowski",
   "homepage": "https://www.deckdrill.app",
@@ -45,7 +45,13 @@
     "nsis": {
       "artifactName": "deckdrill-Setup.${ext}"
     },
-    "afterPack": "build/adhoc-sign.cjs"
+    "afterPack": "build/adhoc-sign.cjs",
+    "extraResources": [
+      {
+        "from": "build/licenses",
+        "to": "licenses"
+      }
+    ]
   },
   "devDependencies": {
     "electron": "^45.1.0",
