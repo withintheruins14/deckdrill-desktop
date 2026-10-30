@@ -1,0 +1,53 @@
+{
+  "name": "deckdrill-desktop",
+  "productName": "deckdrill",
+  "version": "1.0.0",
+  "description": "deckdrill for Mac and Windows: Anki decks and Pimsleur- and Glossika-style audio drills, in your own voice.",
+  "author": "Phillip Jacowski",
+  "homepage": "https://www.deckdrill.app",
+  "private": true,
+  "main": "main.cjs",
+  "scripts": {
+    "start": "electron .",
+    "dist:mac": "electron-builder --mac",
+    "dist:win": "electron-builder --win"
+  },
+  "build": {
+    "appId": "app.deckdrill.desktop",
+    "productName": "deckdrill",
+    "files": [
+      "main.cjs",
+      "preload.cjs",
+      "offline.html",
+      "package.json"
+    ],
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "artifactName": "deckdrill-${os}-${arch}.${ext}",
+    "mac": {
+      "target": [
+        "dmg"
+      ],
+      "category": "public.app-category.education",
+      "extendInfo": {
+        "NSMicrophoneUsageDescription": "deckdrill records your voice so it can be cloned into your own ElevenLabs account."
+      }
+    },
+    "win": {
+      "target": [
+        "nsis"
+      ],
+      "signAndEditExecutable": false
+    },
+    "nsis": {
+      "artifactName": "deckdrill-Setup.${ext}"
+    },
+    "afterPack": "build/adhoc-sign.cjs"
+  },
+  "devDependencies": {
+    "electron": "^45.1.0",
+    "electron-builder": "^26.18.0"
+  }
+}
