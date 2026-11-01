@@ -28,4 +28,3 @@ Builds are unsigned (macOS builds are ad-hoc signed), so Mac and Windows ask for
 - Terms, privacy and voice licensing: https://www.deckdrill.app/legal (also under Help in the app).
 - Your computer's own voices are licensed by Apple and Microsoft for personal, non-commercial use; drills saved with them are for your own study.
 - Electron (MIT) and Chromium license texts ship inside the app (`Resources/licenses`, Help → Electron License / Chromium Licenses) and are in `build/licenses/` here.
-- © 2026 Phillip Jacowski. All rights reserved unless a license file says otherwise.

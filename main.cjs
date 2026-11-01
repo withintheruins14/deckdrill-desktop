@@ -72,7 +72,6 @@ function setUpMenu() {
   app.setAboutPanelOptions({
     applicationName: "deckdrill",
     applicationVersion: app.getVersion(),
-    copyright: "© 2026 Phillip Jacowski",
     credits: "Built with Electron and Chromium (see Help → Open-source licenses). Your computer's own voices are licensed by Apple and Microsoft for personal, non-commercial use.",
     website: SITE,
   });
